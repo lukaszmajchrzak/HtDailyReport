@@ -14,6 +14,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
+/**
+ * @deprecated
+ */
 public class ExcelReaderFinal {
     private String fileName;
     private String outputFileName;
@@ -54,7 +57,7 @@ public class ExcelReaderFinal {
             }
 
 
-        insertValues(prepare(dateExists,existingDatePos,lastColumId),reportSheet,date);
+        insertValues(prepare(dateExists,existingDatePos,lastColumId),reportSheet,date, dateExists);
             if(dateExists) {
                 countTotal(lastColumId - 1, reportSheet);
             } else
@@ -110,7 +113,7 @@ public class ExcelReaderFinal {
             return insertCellPos;
         return lastColumId;
     }
-    private void insertValues(int insertCellPos, Sheet reportSheet, Date date){
+    private void insertValues(int insertCellPos, Sheet reportSheet, Date date, Boolean isExisting){
         int i=2;
         int count = 0;
         System.out.printf("ipos: "+ insertCellPos);
@@ -125,6 +128,7 @@ public class ExcelReaderFinal {
                     }
                     reportSheet.getRow(8).createCell(insertCellPos);
         reportSheet.getRow(8).getCell(insertCellPos).setCellValue(count);
+        if(!isExisting)
         setFormatting(insertCellPos,reportSheet);
     }
 

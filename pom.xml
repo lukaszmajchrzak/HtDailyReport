@@ -44,7 +44,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>HeatToDatabase.Main</mainClass>
+                            <mainClass>ReportsManager.myApp</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -54,7 +54,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.6.0</version>
                 <configuration>
-                    <mainClass>HeatToDatabase.Main</mainClass>
+                    <mainClass>ReportsManager.myApp</mainClass>
                 </configuration>
             </plugin>
         </plugins>

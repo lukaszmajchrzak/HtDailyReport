@@ -12,10 +12,10 @@ public class myApp {
     public static void main(String[] args) {
 
         MyLogger logger = new MyLogger();
-        DateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
 
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationConfig.xml");
-        ExcelReaderFinal excelReader = context.getBean("ExcelReaderFinal", ExcelReaderFinal.class);
+        CreateDailyReport createDailyReport = context.getBean("CreateDailyReport", CreateDailyReport.class);
 
 
 
@@ -23,13 +23,17 @@ public class myApp {
         try {
             if(args.length>0){
                 for(int i=0;i<args.length;i++){
-                    excelReader.readExcel(df.parse(args[i]));
+                    System.out.println(args[i]);
+                    Date date = sdf.parse(args[i]);
+                    createDailyReport.createReport(date);
                 }
             } else{
-                excelReader.readExcel(new Date());
+                createDailyReport.createReport(new Date());
                 logger.sendLog("{DailyReport} : " + new Date() + " processed!");
             }
         } catch(ParseException e){
+            System.out.println("did nut wurk");
+            e.printStackTrace();
             logger.sendLog("{Daily Report} : "+ e.getMessage());
         }
     }

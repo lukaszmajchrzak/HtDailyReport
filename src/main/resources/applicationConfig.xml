@@ -8,8 +8,8 @@
        http://www.springframework.org/schema/context/spring-context-3.0.xsd
 http://www.springframework.org/schema/context ">
     <context:property-placeholder location="config.properties"/>
-    <bean id="ExcelReaderFinal" class ="ReportsManager.ExcelReaderFinal">
-        <property name="fileName" value="${fileName}"/>
+    <bean id="CreateDailyReport" class ="ReportsManager.CreateDailyReport">
+        <property name="inputFileName" value="${inputFileName}"/>
         <property name="filePath" value="${filePath}"/>
         <property name="outputFileName" value="${outputFileName}"/>
     </bean>
