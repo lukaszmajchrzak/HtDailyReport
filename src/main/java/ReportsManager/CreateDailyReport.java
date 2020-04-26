@@ -60,7 +60,7 @@ public class CreateDailyReport {
 
     }
 
-    private void readExistingDates(Sheet reportSheet){
+    public ArrayList<ExistingDailyReports> readExistingDates(Sheet reportSheet){
 
         Row dateRow = reportSheet.getRow(this.dateRowIndex);
         int i = dateFirstColumnIndex;
@@ -81,6 +81,7 @@ public class CreateDailyReport {
         }
         setLastColumnIndex(i);
         clearStatuses();
+        return new ArrayList<>(existingDailyReportsArrayList);
     }
     private void newDailyReport(Sheet reportSheet, Sheet formatSheet, Date date){
         getDataFromDB(date);
