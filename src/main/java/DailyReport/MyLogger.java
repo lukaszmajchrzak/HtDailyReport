@@ -1,4 +1,4 @@
-package ReportsManager;
+package DailyReport;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 

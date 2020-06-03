@@ -1,15 +1,16 @@
-package ReportsManager;
+package DailyReport;
 
-import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.text.Normalizer;
-import java.util.regex.Pattern;
 
 public class DbConnect {
     protected Connection con;
     private MyLogger logger = new MyLogger();
+    private ConnectionReader connectionReader;
+
+    public DbConnect(ConnectionReader connectionReader) {
+        this.connectionReader = connectionReader;
+    }
 
     /**
      * <p> Method connects to database using connection string typed in connectionString.xml file
@@ -19,10 +20,13 @@ public class DbConnect {
 
     public void connect() {
         try {
-//            this.con = DriverManager.getConnection(conReader.getAddress(), conReader.getUsername(), conReader.getPassword());
-              this.con =DriverManager.getConnection("jdbc:mysql://10.13.135.10:3306/db?serverTimezone=UTC", "LukMaj", "LukMaj123$%^");
+
+            String connectionString = connectionReader.getConnectionURL();
+            String username = connectionReader.getUsername();
+            String password = connectionReader.getPassword();
+            this.con = DriverManager.getConnection(connectionString,username,password);
         } catch (SQLException e) {
-            System.out.println(e.toString());
+            e.printStackTrace();
         }
     }
     public ArrayList<Incident> getDailyReport(String date){
@@ -35,6 +39,7 @@ public class DbConnect {
             ResultSet rs = stmt.executeQuery("SELECT `Incident ID`, `Status`,`CI Name` FROM HEAT.HEATDATA Where `Created On` = '"+ date + "' AND `Team` = 'IT Applications Operations Support'");
             if(rs.next() != false){
                 while(rs.next()){
+                    System.out.println(rs.getInt(1) + rs.getString(3) +rs.getString(2));
                     dailyIncidentList.add(new Incident(rs.getInt(1),rs.getString(3),rs.getString(2)));
                 }
             }

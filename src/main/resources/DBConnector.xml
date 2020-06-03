@@ -7,10 +7,11 @@
   http://www.springframework.org/schema/context
        http://www.springframework.org/schema/context/spring-context-3.0.xsd
 http://www.springframework.org/schema/context ">
-    <context:property-placeholder location="config.properties"/>
-    <bean id="CreateDailyReport" class ="DailyReport.CreateDailyReport">
-        <property name="inputFileName" value="${inputFileName}"/>
-        <property name="filePath" value="${filePath}"/>
-        <property name="outputFileName" value="${outputFileName}"/>
+    <context:property-placeholder location="db.properties"/>
+
+    <bean id="ConnectionReader" class="HeatToDatabase.ConnectionReader">
+        <property name="FilePath" value="${filePath}"/>
+
+
     </bean>
 </beans>

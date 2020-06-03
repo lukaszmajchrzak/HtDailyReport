@@ -1,4 +1,4 @@
-package ReportsManager;
+package DailyReport;
 
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -25,11 +25,15 @@ public class ExcelReaderFinal {
     private final int statusColumnId = 0;
     private ArrayList<Incident> dailyIncidents;
     private HashMap<String,Integer> statusCounts = new HashMap<>();
-    private DbConnect dbConnect = new DbConnect();
+    private DbConnect dbConnect;
     private SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
 
     public void setOutputFileName(String outputFileName) {
         this.outputFileName = outputFileName;
+    }
+
+    public ExcelReaderFinal(DbConnect dbConnect) {
+        this.dbConnect = dbConnect;
     }
 
     public void readExcel(Date date) {

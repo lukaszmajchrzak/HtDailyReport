@@ -1,4 +1,4 @@
-package ReportsManager;
+package DailyReport;
 
 public class SortReports {
 }

@@ -1,4 +1,4 @@
-package ReportsManager;
+package DailyReport;
 
 import java.util.Date;
 import java.util.HashMap;

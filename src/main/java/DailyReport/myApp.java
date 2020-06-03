@@ -1,9 +1,8 @@
-package ReportsManager;
+package DailyReport;
 
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -16,7 +15,6 @@ public class myApp {
 
         ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext("applicationConfig.xml");
         CreateDailyReport createDailyReport = context.getBean("CreateDailyReport", CreateDailyReport.class);
-
 
 
 

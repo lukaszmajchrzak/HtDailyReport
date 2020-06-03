@@ -1,4 +1,4 @@
-package ReportsManager;
+package DailyReport;
 
 import org.apache.poi.ss.usermodel.Workbook;
 
@@ -25,6 +25,7 @@ public class ExcelFileWriter {
 
     public void WriteFile(Workbook workbook){
         try {
+
             File outputFile = new File(filePath + outputFileName);
             FileOutputStream fos = new FileOutputStream(outputFile);
 

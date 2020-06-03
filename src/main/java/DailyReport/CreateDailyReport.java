@@ -1,10 +1,9 @@
-package ReportsManager;
+package DailyReport;
 
-import org.apache.log4j.DailyRollingFileAppender;
-import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -19,7 +18,7 @@ public class CreateDailyReport {
     private final SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
     private int lastColumnIndex;
 
-    private DbConnect dbConnect = new DbConnect();
+    private DbConnect dbConnect;
     private ArrayList<Incident> dailyIncidents = new ArrayList<>();
 
     private String outputFileName;
@@ -27,6 +26,15 @@ public class CreateDailyReport {
     private String filePath;
     private HashMap<String,Integer> statusCounts = new HashMap<>();
     private ArrayList<ExistingDailyReports> existingDailyReportsArrayList = new ArrayList<>();
+
+
+    public CreateDailyReport() {
+        ClassPathXmlApplicationContext dbContext = new ClassPathXmlApplicationContext("DBConnector.xml");
+        ConnectionReader connectionReader = dbContext.getBean("ConnectionReader", ConnectionReader.class);
+        connectionReader.readConnectionSetup();
+        dbConnect = new DbConnect(connectionReader);
+
+    }
 
     public void setLastColumnIndex(int lastColumnIndex) {
         this.lastColumnIndex = lastColumnIndex;
@@ -49,13 +57,13 @@ public class CreateDailyReport {
         Sheet reportSheet = excelWorkbook.getSheet("Report");
         Sheet formatSheet = excelWorkbook.getSheet("Format");
         readExistingDates(reportSheet);
-        if(isDailyReportUpdate(reportSheet,date)){
+        if(isDailyReportUpdate(date)){
             updateDailyReport(reportSheet,formatSheet,date);
         } else{
             newDailyReport(reportSheet,formatSheet,date);
         }
         countTotalTotal(reportSheet,formatSheet);
-
+//        new SortDailyReports(excelWorkbook,this.dateRowIndex,this.dateFirstColumnIndex,this.statusColumnIndex,this.statusFirstRowIndex).sortDailyReports();
         new ExcelFileWriter(this.filePath,this.outputFileName).WriteFile(excelWorkbook);
 
     }
@@ -73,8 +81,8 @@ public class CreateDailyReport {
                     statusCounts.replace(reportSheet.getRow(v).getCell(statusColumnIndex).getStringCellValue(),(int)(reportSheet.getRow(v).getCell(i).getNumericCellValue()));
                 }
             }
-            System.out.println("i: ["+i+"]; date: [" + sdf.format(dateRow.getCell(i).getDateCellValue())+"]; statuscount: ");
-            System.out.println(statusCounts);
+//            System.out.println("i: ["+i+"]; date: [" + sdf.format(dateRow.getCell(i).getDateCellValue())+"]; statuscount: ");
+//            System.out.println(statusCounts);
             existingDailyReportsArrayList.add(new ExistingDailyReports(i,dateRow.getCell(i).getDateCellValue(),statusCounts));
             clearStatuses();
             i++;
@@ -89,11 +97,11 @@ public class CreateDailyReport {
             reportSheet.getRow(this.dateRowIndex).createCell(this.lastColumnIndex);
         reportSheet.getRow(this.dateRowIndex).getCell(this.lastColumnIndex).setCellValue(date);
         reportSheet.getRow(this.dateRowIndex).getCell(this.lastColumnIndex).setCellType(0);
-        insertData(reportSheet,formatSheet, this.lastColumnIndex);
+        insertData(reportSheet,formatSheet, this.lastColumnIndex,this.statusCounts);
 
     }
 
-    private void insertData(Sheet reportSheet, Sheet formatSheet, int insertPos){
+    public void insertData(Sheet reportSheet, Sheet formatSheet, int insertPos, HashMap<String,Integer> statusCounts){
         for(int i = this.dateRowIndex+1;i<8;i++){
             if(reportSheet.getRow(i).getCell(insertPos) == null)
                 reportSheet.getRow(i).createCell(insertPos);
@@ -104,10 +112,11 @@ public class CreateDailyReport {
     }
 
     private void updateDailyReport(Sheet reportSheet, Sheet formatSheet, Date date){
+        getDataFromDB(date);
         for(int i=0;i<this.existingDailyReportsArrayList.size();i++){
             if(this.existingDailyReportsArrayList.get(i).getDate() == date){
-                statusCounts = existingDailyReportsArrayList.get(i).getStatusCounts();
-                insertData(reportSheet,formatSheet,existingDailyReportsArrayList.get(i).getCellPosition());
+                this.statusCounts = this.existingDailyReportsArrayList.get(i).getStatusCounts();
+                insertData(reportSheet,formatSheet,this.existingDailyReportsArrayList.get(i).getCellPosition(),this.statusCounts);
             }
         }
     }
@@ -151,7 +160,7 @@ public class CreateDailyReport {
         do {
             if(reportSheet.getRow(this.dateRowIndex).getCell(i).getCellType() != 0 && reportSheet.getRow(this.dateRowIndex).getCell(i).getStringCellValue().equals("TOTAL")) {
                 totalColumnIndex = i;
-                System.out.println("TOTAL found: [" + i + "]");
+//                System.out.println("TOTAL found: [" + i + "]");
                 isFound = true;
             }
             i++;
@@ -184,17 +193,29 @@ public class CreateDailyReport {
 
     private void getDataFromDB(Date date){
         clearStatuses();
-        dailyIncidents = dbConnect.getDailyReport(sdf.format(date));
+        SimpleDateFormat dbFormat = new SimpleDateFormat("yyyy-MM-dd");
+        dailyIncidents = dbConnect.getDailyReport(dbFormat.format(date));
         int tempCount;
         for(int i=0;i<dailyIncidents.size();i++){
+            System.out.println(this.statusCounts.get(dailyIncidents.get(i).getStatus()));
             tempCount = this.statusCounts.get(dailyIncidents.get(i).getStatus());
-            this.statusCounts.replace(dailyIncidents.get(i).getStatus(),++tempCount);
+            tempCount++;
+            this.statusCounts.replace(dailyIncidents.get(i).getStatus(),tempCount);
+            System.out.println(statusCounts.get(dailyIncidents.get(i).getStatus()));
         }
+
+
     }
 
-    private boolean isDailyReportUpdate(Sheet reportSheet,Date date){
-        if(existingDailyReportsArrayList.contains(date)){
-            return true;
+    private boolean isDailyReportUpdate(Date date){
+//        System.out.println("ex size: " + existingDailyReportsArrayList.size());
+        for(int i=0;i<existingDailyReportsArrayList.size();i++) {
+            if (existingDailyReportsArrayList.get(i).getDate().getDay() == date.getDay() &&
+                    existingDailyReportsArrayList.get(i).getDate().getMonth() == date.getMonth() &&
+                    existingDailyReportsArrayList.get(i).getDate().getYear() == date.getYear()) {
+                System.out.println("DMY : TRUE");
+                return true;
+            }
         }
         return false;
     }
